@@ -20,9 +20,8 @@
   },
   "scripts": {
     "build": "npm build",
-    "dev": "nodemon --exec ts-node src/index.ts",
+    "start": "nodemon --exec ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start ": "npx ts-node src/index.ts",
     "migrate": "KNEX_ENV=development knex migrate:latest",
     "proxy": "http://localhost:3000"
   },
