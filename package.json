@@ -1,5 +1,5 @@
 {
-  "name": "api-postgres",
+  "name": "scrapE-server",
   "version": "1.0.0",
   "description": "RESTful API for scrapE",
   "main": "src/index.ts",
@@ -20,10 +20,9 @@
   },
   "scripts": {
     "build": "npm build",
-    "start": " npx ts-node src/index.ts",
+    "start": " ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate": "KNEX_ENV=development knex migrate:latest",
-    "proxy": "http://localhost:3000"
+    "migrate": "KNEX_ENV=development knex migrate:latest"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.1",
