@@ -20,7 +20,7 @@
   },
   "scripts": {
     "build": "npm build",
-    "start": " ts-node src/index.ts",
+    "start": "KNEX_ENV=development knex migrate:latest && ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "KNEX_ENV=development knex migrate:latest"
   },
