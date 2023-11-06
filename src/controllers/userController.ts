@@ -44,27 +44,35 @@ export const register = async (req: Request, res: Response) => {
   }
 }
 
-export const login = async(req:Request, res: Response) => {
-  const {phone_number, password} = req.body;
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { phone_number, password } = req.body;
 
-  const result = await query('SELECT id, password FROM users WHERE phone_number = $1', [phone_number]);
-  const user = result.rows[0];
-  if(user){
-    const hashedPassword = user.password;
-    console.log(hashedPassword, "jj")
+    // Query the database for the user's information
+    const result = await query('SELECT id, password FROM users WHERE phone_number = $1', [phone_number]);
+    const user = result.rows[0];
 
-    const passwordMatch = await bcrypt.compare(password, hashedPassword);
-
-    if(passwordMatch){
-      const token = createToken(user)
-      res.status(200).send({ token });
-    }else{
-      res.status(401).json({ message: 'Incorrect password'});
+    if (!user) {
+      // User not found
+      return res.status(401).json({ message: 'User not found' });
     }
-  }else{
-    res.status(401).send({message: 'User not found'})
+
+    // Compare the hashed password from the database with the provided password
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      // Incorrect password
+      return res.status(401).json({ message: 'Incorrect password' });
+    }
+
+    // Password is correct, generate a token and send it in the response
+    const token = createToken(user);
+    return res.status(200).json({ token });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
-}
+};
 
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
