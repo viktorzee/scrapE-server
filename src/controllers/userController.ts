@@ -51,6 +51,7 @@ export const login = async(req:Request, res: Response) => {
   const user = result.rows[0];
   if(user){
     const hashedPassword = user.password;
+    console.log(hashedPassword, "jj")
 
     const passwordMatch = await bcrypt.compare(password, hashedPassword);
 
@@ -58,7 +59,7 @@ export const login = async(req:Request, res: Response) => {
       const token = createToken(user)
       res.status(200).send({ token });
     }else{
-      res.status(401).send({ message: 'Incorrect password'});
+      res.status(401).json({ message: 'Incorrect password'});
     }
   }else{
     res.status(401).send({message: 'User not found'})
