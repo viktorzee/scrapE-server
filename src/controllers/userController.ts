@@ -49,7 +49,7 @@ export const login = async (req: Request, res: Response) => {
     const { phone_number, password } = req.body;
 
     // Query the database for the user's information
-    const result = await query('SELECT id, password FROM users WHERE phone_number = $1', [phone_number]);
+    const result = await query('SELECT id, password, phone_number, full_name, email FROM users WHERE phone_number = $1', [phone_number]);
     const user = result.rows[0];
 
     if (!user) {
@@ -67,7 +67,8 @@ export const login = async (req: Request, res: Response) => {
 
     // Password is correct, generate a token and send it in the response
     const token = createToken(user);
-    return res.status(200).json({ token });
+    const userProfile = {...user, password: undefined}
+    return res.status(200).json({ token, profile: userProfile });
   } catch (error) {
     console.error('Login error:', error);
     return res.status(500).json({ message: 'Server error' });
