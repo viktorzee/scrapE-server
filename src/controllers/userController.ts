@@ -5,6 +5,8 @@ import {
   validationResult, body
 } from 'express-validator'
 import { createToken } from '../auth/createToken'
+import {Vonage} from '@vonage/server-sdk';
+require('dotenv').config();
 
 export const validateRegistration = [
   body('phone_number').isLength({ min: 11 }).withMessage('Phone Number must be at least 11'),
@@ -12,29 +14,40 @@ export const validateRegistration = [
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
 ];
 
+let vonageApi:any;
+const vonageApiKey = process.env.VONAGE_API_KEY as string;
+const vonageApiSecret = process.env.VONAGE_API_SECRET as string;
+
+if (!vonageApiKey || !vonageApiSecret) {
+  console.error("Vonage API key or secret is not defined.");
+} else {
+  const credentials = {
+    apiKey: vonageApiKey,
+    apiSecret: vonageApiSecret,
+  };
+
+  vonageApi = new Vonage(credentials as any);
+};
+
 export const register = async (req: Request, res: Response) => {
-  //user reg validation
-  // const errors = validationResult(req);
-
-  // if(errors.isEmpty()){
-  //   return res.status(400).json({errors: errors.array()});
-  // }
-
   const { email, full_name, phone_number, password } = req.body;
 
-  //hash user's password before storing to db
+  // Check if the email or phone number already exists
+  const userExists = await query('SELECT * FROM users WHERE email = $1 OR phone_number = $2', [email, phone_number]);
+
+  if (userExists.rows.length > 0) {
+    res.status(400).json({ message: 'Email or phone number already registered' });
+    return;
+  }
+
+  // Hash user's password before storing it in the database
   const saltRounds = 10;
   const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-  // Generate a random OTP (e.g., a 6-digit number)
-  const otp = Math.floor(100000 + Math.random() * 900000);
-
-  //create new userMethid
 
   try {
     const result = await query(
       'INSERT INTO users (full_name, email, phone_number, password) VALUES ($1, $2, $3, $4) RETURNING *',
-      [full_name, email, phone_number, hashedPassword ]
+      [full_name, email, phone_number, hashedPassword]
     );
 
     res.status(201).json(result.rows[0]);
@@ -42,7 +55,8 @@ export const register = async (req: Request, res: Response) => {
     console.error('Error creating user:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
+
 
 export const login = async (req: Request, res: Response) => {
   try {
