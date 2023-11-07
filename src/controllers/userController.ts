@@ -5,29 +5,13 @@ import {
   validationResult, body
 } from 'express-validator'
 import { createToken } from '../auth/createToken'
-import {Vonage} from '@vonage/server-sdk';
-require('dotenv').config();
+
 
 export const validateRegistration = [
   body('phone_number').isLength({ min: 11 }).withMessage('Phone Number must be at least 11'),
   body('email').isEmail().withMessage('Invalid email address'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
 ];
-
-let vonageApi:any;
-const vonageApiKey = process.env.VONAGE_API_KEY as string;
-const vonageApiSecret = process.env.VONAGE_API_SECRET as string;
-
-if (!vonageApiKey || !vonageApiSecret) {
-  console.error("Vonage API key or secret is not defined.");
-} else {
-  const credentials = {
-    apiKey: vonageApiKey,
-    apiSecret: vonageApiSecret,
-  };
-
-  vonageApi = new Vonage(credentials as any);
-};
 
 export const register = async (req: Request, res: Response) => {
   const { email, full_name, phone_number, password } = req.body;
