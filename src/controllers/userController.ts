@@ -30,7 +30,7 @@ export const register = async (req: Request, res: Response) => {
 
   try {
     const result = await query(
-      'INSERT INTO users (full_name, email, phone_number, password) VALUES ($1, $2, $3, $4) RETURNING id, email, full_name, phone_number,',
+      'INSERT INTO users (full_name, email, phone_number, password) VALUES ($1, $2, $3, $4) RETURNING id, email, full_name, phone_number',
       [full_name, email, phone_number, hashedPassword]
     );
 
