@@ -30,7 +30,7 @@ export const register = async (req: Request, res: Response) => {
 
   try {
     const result = await query(
-      'INSERT INTO users (full_name, email, phone_number, password) VALUES ($1, $2, $3, $4) RETURNING *',
+      'INSERT INTO users (full_name, email, phone_number, password) VALUES ($1, $2, $3, $4) RETURNING id, email, full_name, phone_number,',
       [full_name, email, phone_number, hashedPassword]
     );
 
@@ -112,16 +112,22 @@ export const updateUser =async (req: Request, res: Response) => {
   
     try { 
       const updateUserQuery = `
-        UPDATE users
-        SET full_name = COALESCE($1, full_name), email = COALESCE($2, email), password = COALESCE($3, password),
-        phone_number = COALESCE($4, phone_number), nin = COALESCE($5, nin), bvn = COALESCE($6, bvn), account_number = COALESCE($7, account_number),  
+      UPDATE users
+        SET
+          full_name = COALESCE($1, full_name),
+          email = COALESCE($2, email),
+          password = COALESCE($3, password),
+          phone_number = COALESCE($4, phone_number),
+          nin = COALESCE($5, nin),
+          bvn = COALESCE($6, bvn),
+          account_number = COALESCE($7, account_number)
         WHERE id = $8
         RETURNING id, full_name, email;
       `;
 
       const result = await query(
         updateUserQuery,
-        [email, full_name,  phone_number, password, nin, bvn, account_number/* Add more values */, userId]
+        [email, full_name,  phone_number, password, nin, bvn, account_number, userId]
       );
   
       if (result.rows.length === 0) {
