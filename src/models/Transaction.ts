@@ -3,4 +3,5 @@ export interface Transaction {
     name: string;
     price: string;
     status: string;
+    user_id: string;
 }

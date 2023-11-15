@@ -18,6 +18,7 @@ app.use(
 
 app.use('/api/users', require('./routes/users'));
 app.use('/api/categories', require('./routes/categories'));
+app.use('/api/transactions', require('./routes/transactions'));
 
 // Error handling middleware
 app.use((err:Error, req:Request, res:Response, next: NextFunction) => {

@@ -3,8 +3,11 @@ import {query} from '../db/db';
 
 export const createTransaction = async (req: Request, res: Response) => {
     const {name, price, status} = req.body;
+    const user_id = (req as any).user.userId;
+
     try {
-        const result = await query('INSERT INTO transactions (name, price, status ) VALUES ($1, $2, $3) RETURNING *', [name, price, status]);
+
+        const result = await query('INSERT INTO transactions (name, price, status, user_id ) VALUES ($1, $2, $3, $4) RETURNING *', [name, price, status, user_id]);
 
         res.status(201).json(result.rows[0]);
     } catch (error) {
@@ -23,7 +26,7 @@ export const getAllTransactions = async (req: Request, res: Response) => {
 }
 
 export const getTransaction = async (req: Request, res: Response) => {
-    const transactionId = parseInt(req.params.transactionId);    
+    const transactionId = req.params.transactionId;
     try {
         const { rows } = await query('SELECT * FROM transactions WHERE id = $1', [transactionId]);
 
@@ -39,12 +42,20 @@ export const getTransaction = async (req: Request, res: Response) => {
 }
 
 export const updateTransaction = async(req: Request, res: Response) => {
-    const transactionId = parseInt(req.params.id);
+    const transactionId = req.params.id;
     const { name, price, status } = req.body;
+    const updateTransactionQuery = `
+    UPDATE transactions
+    SET name = COALESCE($1, name),
+        price = COALESCE($2, price),
+        status = COALESCE($3, status)        
+    WHERE id = $4
+    RETURNING id, name, price, status;
+  `;
 
     try {
         const result = await query(
-           'UPDATE transaction SET name = $1, price = $2, status = $3' , [name, price, status, transactionId]
+           updateTransactionQuery , [name, price, status, transactionId]
         )
 
         if(result.rows.length === 0){
@@ -59,11 +70,20 @@ export const updateTransaction = async(req: Request, res: Response) => {
 }
 
 export const deleteTransaction = async (req: Request, res: Response) => {
+    const transactionId = req.params.id;
+    const deleteTransactionQuery = `
+        DELETE FROM transactions
+        WHERE id = $1
+        RETURNING *;
+    `;
+    if(!transactionId){
+        res.status(404).json({ message: 'transaction not found' });
+    }
     try {
-        const result = await query('DELETE FROM transaction WHERE id = $1 RETURNING *', []);
+        const result = await query(deleteTransactionQuery, [transactionId]);
         
         if (result.rows.length === 0) {
-            res.status(404).json({ message: 'User not found' });
+            res.status(404).json({ message: 'transaction not found' });
         } else {
             res.json({ message: 'User deleted successfully' });
         }

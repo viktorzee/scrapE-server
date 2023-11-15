@@ -1,5 +1,7 @@
 // src/routes/transactions.ts
-import { Router } from 'express';
+const express = require('express');
+const router = express.Router(); 
+import { requireAuth } from '../auth/requireAuth';
 import { 
     createTransaction,
     deleteTransaction, 
@@ -8,13 +10,11 @@ import {
     updateTransaction,
 } from '../controllers/TransactionController';
 
-const router = Router();
-
 // Route to create a new transaction associated with a user
-router.post('/transactions/create', createTransaction);
-router.get('/transactions', getAllTransactions);
-router.get('/transactions/:id', getTransaction);
-router.put('/transaction/:id', updateTransaction);
-router.delete('/transaction/:id', deleteTransaction);
+router.post('/create', requireAuth, createTransaction);
+router.get('/', requireAuth, getAllTransactions);
+router.get('/:id', requireAuth, getTransaction);
+router.put('/:id', requireAuth, updateTransaction);
+router.delete('/:id', requireAuth, deleteTransaction);
 
-export default router;
+module.exports = router;
