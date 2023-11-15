@@ -18,10 +18,11 @@ export const createTransaction = async (req: Request, res: Response) => {
 
 export const getAllTransactions = async (req: Request, res: Response) => {
     try {
-        const { rows } = await query('SELECT * FROM transaction', []);
+        const { rows } = await query('SELECT * FROM transactions', []);
         res.json(rows);
     } catch (error) {
-        console.log(error)
+        console.error('Error getting transactions:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
 }
 
@@ -36,7 +37,7 @@ export const getTransaction = async (req: Request, res: Response) => {
             res.json(rows[0]);
         }
     } catch (error) {
-        console.log('Error getting user', error);
+        console.log('Error getting transactions', error);
         res.status(500).json({message: 'Internal server error'});        
     }
 }
