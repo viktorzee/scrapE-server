@@ -7,4 +7,6 @@ export interface User {
     nin: string;
     bvn: string;
     account_number: string;
+    created_at: string;
+    updated_at: string; 
 }
